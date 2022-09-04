@@ -185,7 +185,7 @@ def getWaterFlowLastMinute():
 
 def getWaterFlowLastMonth():
     payload = '{"queries":[{"request_id":"permonth","bucket":"MON","since_datetime":"' + previousmonth() + '","until_datetime":"' + currentminute() + '","group_multiplier":"1","operation":"SUM","sort_direction":"ASC","units":"GALLONS"}]}'
-    print(payload)
+    #print(payload)
     headers = buildRequestHeader();
     headers["content-type"] = "application/json"
     resp = requests.request("POST", "https://api.flumetech.com/users/" + str(config["user_id"])  + "/devices/" + str(config["device_id"])  + "/query", data=payload, headers=headers)
