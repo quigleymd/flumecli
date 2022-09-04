@@ -85,7 +85,11 @@ def obtainCredentials(config):
                 f.write(json.dumps(outline))
                 f.close()
         else:
-            quit("failed to obtain creds")    
+            print("failed to obtain creds")    
+            print("http_code: {}".format(dataJSON["http_code"]))
+            print("http_message: {}".format(dataJSON["http_message"]))
+            print("details: {}".format(dataJSON["detailed"]))
+            quit()
 
 
 def renewCredentials(config):
