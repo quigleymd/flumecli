@@ -3,7 +3,6 @@ import datetime
 import argparse
 import json
 import jwt
-import struct
 
 config = {}
 
