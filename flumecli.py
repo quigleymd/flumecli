@@ -27,6 +27,7 @@ def checkparams():
     parser.add_argument("--tokenfile", help="Token details file.  This file will be written to when in --auth mode.  This file will be read from for all other modes.")
     parser.add_argument("--logfile", help="Logfile to write query data to.  If this parameter is not specified, the query data will go to stdout.")
 
+    parser.add_argument("--silent", "-s", help="Silence output", action="store_true")
     parser.add_argument("--verbose", "-v", help="Add verbosity", action="store_true")
 
     action_group = parser.add_mutually_exclusive_group()
@@ -51,6 +52,7 @@ def checkparams():
     config["ohcurl"] = args.ohcurl
     config["tokenfile"] = args.tokenfile
     config["logfile"] = args.logfile
+    config["silent"] = args.silent
     config["verbose"] = args.verbose
 
         
@@ -204,7 +206,8 @@ def transmitFlow(flowValue):
         f.write(currentminute() + ": " + str(flowValue) + "\n\r")
         f.close()
     else:
-        print(currentminute() + ": " + str(flowValue))
+        if not config["silent"]:
+            print(currentminute() + ": " + str(flowValue))
 
     if config["hecurl"] and config["hectoken"]:
         if config["verbose"]: print("HEC defined, sending to splunk HEC")
