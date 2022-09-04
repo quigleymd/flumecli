@@ -135,7 +135,7 @@ def currentminute():
 
 def getUserID(config):
     if config["verbose"]: print("Getting user ID from JWT")
-    decoded = jwt.decode(config["access_token"], verify=False, algorithms="HS256")
+    decoded = jwt.decode(config["access_token"], options={"verify_signature": False}, algorithms="HS256")
     config["user_id"] = decoded["user_id"]
     if config["verbose"]: 
         print("JWT Details: ")
