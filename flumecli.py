@@ -32,6 +32,7 @@ def checkparams():
     action_group.add_argument("--renew", help="Renew auth token", action="store_true")
     action_group.add_argument("--details", help="Get important metadata about your Flume account", action="store_true")
     action_group.add_argument("--query", help="Query water usage for last minute", action="store_true")
+    action_group.add_argument("--querymonth", help="Query water usage for current month to date (starting on the 1st)", action="store_true")
 
     
 
@@ -53,6 +54,7 @@ def checkparams():
     if args.auth: config["mode"] = "auth"
     if args.details: config["mode"] = "details"
     if args.query: config["mode"] = "query"
+    if args.querymonth: config["mode"] = "querymonth"
     if args.renew: config["mode"] = "renew"
     
     return config
@@ -136,6 +138,8 @@ def currentminute():
     #return (datetime.datetime.now() - datetime.timedelta(minutes=1)).strftime('%Y-%m-%d %H:%M:%S');
     return (datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S');
 
+def previousmonth():
+    return (datetime.date(datetime.datetime.today().year, datetime.datetime.today().month, 1).strftime('%Y-%m-%d 00:00:00'));
 
 def getUserID(config):
     if config["verbose"]: print("Getting user ID from JWT")
@@ -172,6 +176,20 @@ def getWaterFlowLastMinute():
     #print(data)
     if data["http_code"]==200:
         return data["data"][0]["perminute"][0]["value"]
+    else:
+        return None
+
+
+def getWaterFlowLastMonth():
+    payload = '{"queries":[{"request_id":"permonth","bucket":"MON","since_datetime":"' + previousmonth() + '","until_datetime":"' + currentminute() + '","group_multiplier":"1","operation":"SUM","sort_direction":"ASC","units":"GALLONS"}]}'
+    print(payload)
+    headers = buildRequestHeader();
+    headers["content-type"] = "application/json"
+    resp = requests.request("POST", "https://api.flumetech.com/users/" + str(config["user_id"])  + "/devices/" + str(config["device_id"])  + "/query", data=payload, headers=headers)
+    data = json.loads(resp.text)
+    #print(data)
+    if data["http_code"]==200:
+        return data["data"][0]["permonth"][0]["value"]
     else:
         return None
 
@@ -226,6 +244,14 @@ def main():
         getUserID(config)
         getDevices(config)    
         transmitFlow(getWaterFlowLastMinute())
+
+    if config["mode"] == "querymonth":
+        loadCredentials(config);
+        getUserID(config)
+        getDevices(config)    
+        transmitFlow(getWaterFlowLastMonth())
+
+
 
 
     
