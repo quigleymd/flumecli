@@ -3,6 +3,7 @@ import datetime
 import argparse
 import json
 import jwt
+import struct
 
 config = {}
 
@@ -21,6 +22,7 @@ def checkparams():
     parser.add_argument("--hecindex", help="Destination HEC index" )
     parser.add_argument("--hecsourcetype", help="Destination HEC sourcetype")
 
+    parser.add_argument("--ohcurl", help="Full openHAB URL.  e.g. - 'http://172.16.1.2:8080/rest/items/FlumeUsageMonth'")
 
     parser.add_argument("--tokenfile", help="Token details file.  This file will be written to when in --auth mode.  This file will be read from for all other modes.")
     parser.add_argument("--logfile", help="Logfile to write query data to.  If this parameter is not specified, the query data will go to stdout.")
@@ -46,6 +48,7 @@ def checkparams():
     config["hectoken"] = args.hectoken
     config["hecindex"] = args.hecindex
     config["hecsourcetype"] = args.hecsourcetype
+    config["ohcurl"] = args.ohcurl
     config["tokenfile"] = args.tokenfile
     config["logfile"] = args.logfile
     config["verbose"] = args.verbose
@@ -217,6 +220,18 @@ def transmitFlow(flowValue):
             if config["verbose"]: print("Successfully posted to hEC")
         else:
             if config["verbose"]: print("Failed to send to HEC")
+
+    if config["ohcurl"]:
+        if config["verbose"]: print("ohcurl defined, sending to openHAB")
+        header = {"Content-Type":"text/plain", "Accept":"application/json"}
+        payload = "{} gal".format(str(int(flowValue)))
+        resp = requests.request("POST", config["ohcurl"], data=payload, headers=header)
+
+        if resp.status_code == 200:
+            if config["verbose"]: print("Successfully posted to openHAB")
+        else:
+            if config["verbose"]: print("Failed to send to openHAB")
+
 
 def main():
     global config
