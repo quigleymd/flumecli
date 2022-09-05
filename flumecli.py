@@ -227,7 +227,8 @@ def transmitFlow(flowValue):
     if config["ohcurl"]:
         if config["verbose"]: print("ohcurl defined, sending to openHAB")
         header = {"Content-Type":"text/plain", "Accept":"application/json"}
-        payload = "{} gal".format(str(int(flowValue)))
+        #payload = "{} gal".format(str(int(flowValue)))
+        payload = "{} gal".format(float(f'{flowValue:.1f}'))
         resp = requests.request("POST", config["ohcurl"], data=payload, headers=header)
 
         if resp.status_code == 200:
